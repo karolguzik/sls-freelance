@@ -1,0 +1,11 @@
+ClientsTableIAM:
+  Effect: Allow
+  Action:
+    - dynamodb:Scan
+    - dynamodb:Query
+    - dynamodb:GetItem
+    - dynamodb:PutItem
+    - dynamodb:DeleteItem
+  Resource:
+    - ${self:custom.ClientsTable.arn}
+    - !Join ["/", ["${self:custom.ClientsTable.arn}", "index", "emailIndex"]]

@@ -1,0 +1,3358 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "The AWS CloudFormation template for this Serverless application",
+  "Resources": {
+    "ServerlessDeploymentBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ServerlessDeploymentBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "ServerlessDeploymentBucket"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:*",
+              "Effect": "Deny",
+              "Principal": "*",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "ServerlessDeploymentBucket"
+                      },
+                      "/*"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "ServerlessDeploymentBucket"
+                      }
+                    ]
+                  ]
+                }
+              ],
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "GetClientsLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-getClients"
+      }
+    },
+    "GetClientLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-getClient"
+      }
+    },
+    "CreateClientLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-createClient"
+      }
+    },
+    "DeleteClientLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-deleteClient"
+      }
+    },
+    "GetJobsLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-getJobs"
+      }
+    },
+    "GetClientJobsLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-getClientJobs"
+      }
+    },
+    "GetJobLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-getJob"
+      }
+    },
+    "CreateJobLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-createJob"
+      }
+    },
+    "UpdateJobLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-updateJob"
+      }
+    },
+    "DeleteJobLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-deleteJob"
+      }
+    },
+    "CreateJobStepLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-createJobStep"
+      }
+    },
+    "UpdateJobStepLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-updateJobStep"
+      }
+    },
+    "DeleteJobStepLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-deleteJobStep"
+      }
+    },
+    "RequestConfirmJobStepLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-requestConfirmJobStep"
+      }
+    },
+    "ConfirmJobStepLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-confirmJobStep"
+      }
+    },
+    "UploadJobStepDocumentLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-uploadJobStepDocument"
+      }
+    },
+    "GetFeedbacksLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-getFeedbacks"
+      }
+    },
+    "CreateFeedbackLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/freelancero-dev-createFeedback"
+      }
+    },
+    "IamRoleLambdaExecution": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "freelancero",
+                  "dev",
+                  "lambda"
+                ]
+              ]
+            },
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogStream",
+                    "logs:CreateLogGroup"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/freelancero-dev*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/freelancero-dev*:*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:Scan",
+                    "dynamodb:Query",
+                    "dynamodb:GetItem",
+                    "dynamodb:PutItem",
+                    "dynamodb:DeleteItem"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::GetAtt": [
+                        "ClientsTable",
+                        "Arn"
+                      ]
+                    },
+                    {
+                      "Fn::Join": [
+                        "/",
+                        [
+                          {
+                            "Fn::GetAtt": [
+                              "ClientsTable",
+                              "Arn"
+                            ]
+                          },
+                          "index",
+                          "emailIndex"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:Scan",
+                    "dynamodb:Query",
+                    "dynamodb:GetItem",
+                    "dynamodb:PutItem",
+                    "dynamodb:UpdateItem",
+                    "dynamodb:DeleteItem"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::GetAtt": [
+                        "JobsTable",
+                        "Arn"
+                      ]
+                    },
+                    {
+                      "Fn::Join": [
+                        "/",
+                        [
+                          {
+                            "Fn::GetAtt": [
+                              "JobsTable",
+                              "Arn"
+                            ]
+                          },
+                          "index",
+                          "clientIndex"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:Scan",
+                    "dynamodb:Query",
+                    "dynamodb:PutItem"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::GetAtt": [
+                        "FeedbacksTable",
+                        "Arn"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sqs:SendMessage"
+                  ],
+                  "Resource": "arn:aws:sqs:eu-west-1:014679718268:MailQueue-dev"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:PutObject"
+                  ],
+                  "Resource": "arn:aws:s3:::job-documents-bucket-drqw312f-dev/*"
+                }
+              ]
+            }
+          }
+        ],
+        "Path": "/",
+        "RoleName": {
+          "Fn::Join": [
+            "-",
+            [
+              "freelancero",
+              "dev",
+              {
+                "Ref": "AWS::Region"
+              },
+              "lambdaRole"
+            ]
+          ]
+        }
+      }
+    },
+    "GetClientsLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/client/getClients.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-getClients",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "GetClientsLogGroup"
+      ]
+    },
+    "GetClientLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/client/getClient.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-getClient",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "GetClientLogGroup"
+      ]
+    },
+    "CreateClientLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/client/createClient.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-createClient",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "CreateClientLogGroup"
+      ]
+    },
+    "DeleteClientLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/client/deleteClient.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-deleteClient",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "DeleteClientLogGroup"
+      ]
+    },
+    "GetJobsLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/job/getJobs.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-getJobs",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "GetJobsLogGroup"
+      ]
+    },
+    "GetClientJobsLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/job/getClientJobs.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-getClientJobs",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "GetClientJobsLogGroup"
+      ]
+    },
+    "GetJobLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/job/getJob.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-getJob",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "GetJobLogGroup"
+      ]
+    },
+    "CreateJobLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/job/createJob.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-createJob",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "CreateJobLogGroup"
+      ]
+    },
+    "UpdateJobLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/job/updateJob.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-updateJob",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "UpdateJobLogGroup"
+      ]
+    },
+    "DeleteJobLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/job/deleteJob.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-deleteJob",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "DeleteJobLogGroup"
+      ]
+    },
+    "CreateJobStepLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/jobStep/createJobStep.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-createJobStep",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "CreateJobStepLogGroup"
+      ]
+    },
+    "UpdateJobStepLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/jobStep/updateJobStep.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-updateJobStep",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "UpdateJobStepLogGroup"
+      ]
+    },
+    "DeleteJobStepLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/jobStep/deleteJobStep.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-deleteJobStep",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "DeleteJobStepLogGroup"
+      ]
+    },
+    "RequestConfirmJobStepLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/jobStep/requestConfirmJobStep.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-requestConfirmJobStep",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "RequestConfirmJobStepLogGroup"
+      ]
+    },
+    "ConfirmJobStepLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/jobStep/confirmJobStep.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-confirmJobStep",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "ConfirmJobStepLogGroup"
+      ]
+    },
+    "UploadJobStepDocumentLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/jobStep/uploadJobStepDocument.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-uploadJobStepDocument",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "UploadJobStepDocumentLogGroup"
+      ]
+    },
+    "GetFeedbacksLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/feedback/getFeedbacks.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-getFeedbacks",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "GetFeedbacksLogGroup"
+      ]
+    },
+    "CreateFeedbackLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/freelancero/dev/1634287583144-2021-10-15T08:46:23.144Z/freelancero.zip"
+        },
+        "Handler": "src/handlers/feedback/createFeedback.handler",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "freelancero-dev-createFeedback",
+        "MemorySize": 256,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "CLIENTS_TABLE_NAME": {
+              "Ref": "ClientsTable"
+            },
+            "JOBS_TABLE_NAME": {
+              "Ref": "JobsTable"
+            },
+            "FEEDBACKS_TABLE_NAME": {
+              "Ref": "FeedbacksTable"
+            },
+            "MAIL_QUEUE_URL": "https://sqs.eu-west-1.amazonaws.com/014679718268/MailQueue-dev",
+            "JOBS_DOCUMENTS_BUCKET_NAME": "job-documents-bucket-drqw312f-dev"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "CreateFeedbackLogGroup"
+      ]
+    },
+    "GetClientsLambdaVersionEmV7jvLwbGzfmFeA6oqZmIwFxvX62nwXPUUNQG1UUVA": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "GetClientsLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "GetClientLambdaVersionwS6Yc26RM85VgUqNp3HagtESmxXqTo4yoYNRkCJazmk": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "GetClientLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "CreateClientLambdaVersion8q6wxVew3XqYco4YP9xEXmlsjJuX3SZZtAvfcEmFr0": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "CreateClientLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "GetClientJobsLambdaVersionmYLvlzyX5yaomTY8jC1qnDCeVPtZ2PvE9uwX1AgJ5Bs": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "GetClientJobsLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "DeleteClientLambdaVersionnLuD23rp7oqErnxNgJZWqmyFTbg92m2XmuRZhACtE": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "DeleteClientLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "GetJobsLambdaVersionLT6peXcjpX5jdn6kUJ5fU6UV6Qoqmii1HTpXsTv4ZA": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "GetJobsLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "GetJobLambdaVersionDKfQnhepcW0qOW7INlTMKDirq5XjJEMfbhHBSglfs": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "GetJobLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "UpdateJobLambdaVersionsVLRt6b34OAbTk4Kl5z6clRKoCFzcKKIwL09ByY54Ak": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "UpdateJobLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "CreateJobStepLambdaVersionNvDr83oi07BcpEikXiwDWyP6q5gxEPTLFl5eLqryW6A": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "CreateJobStepLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "DeleteJobLambdaVersion2UzBzvXejrVj9WMB78lLCAGQn81XvjFK4QcmXF1RBc": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "DeleteJobLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "CreateJobLambdaVersiondY5aVnodNUBAbOUJlntXk2WuBJvb4J6YhhPRJRdNM": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "CreateJobLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "DeleteJobStepLambdaVersionCRm5mOtl6Z9YEtqxOyPD75P8Aj1dmbc1uiCYoee3wOo": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "DeleteJobStepLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "RequestConfirmJobStepLambdaVersion63V4ZXNiy587bpLDwXJ07pPDL250CBDsdJbQvUkWuQ": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "RequestConfirmJobStepLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "UpdateJobStepLambdaVersionIF1uh3OVFVcfCAgfbu7BHcKirBm4nUGgcQHHAkCD94": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "UpdateJobStepLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "ConfirmJobStepLambdaVersionsiDPrtG7JjBpFXSBeT1H6rh4VWPyH0dWVwN4oCLAsE": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "ConfirmJobStepLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "CreateFeedbackLambdaVersionRrwcoy9Lu1GgxsRLYyg83FfdwY4prKvZNn7wEKbOtI": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "CreateFeedbackLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "UploadJobStepDocumentLambdaVersiondvbV2zjnZubsbcmMrzqqqPCo2Mn5DpqaHLvldMkB608": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "UploadJobStepDocumentLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "GetFeedbacksLambdaVersionrriFfCmgy4andjeKd0FfSc27os482m3tJaugFqyGC8o": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "GetFeedbacksLambdaFunction"
+        },
+        "CodeSha256": "a+oajP1T/fecV1e4AlO7DJ/UOy4qebJeqlamWhgVB/Y="
+      }
+    },
+    "ApiGatewayRestApi": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Name": "dev-freelancero",
+        "EndpointConfiguration": {
+          "Types": [
+            "EDGE"
+          ]
+        },
+        "Policy": ""
+      }
+    },
+    "ApiGatewayResourceClient": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "client",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceClientIdVar": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceClient"
+        },
+        "PathPart": "{id}",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceJob": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "job",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceJobClient": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceJob"
+        },
+        "PathPart": "client",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceJobIdVar": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceJob"
+        },
+        "PathPart": "{id}",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceJobStep": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceJob"
+        },
+        "PathPart": "step",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceJobStepCreate": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceJobStep"
+        },
+        "PathPart": "create",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceJobStepUpdate": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceJobStep"
+        },
+        "PathPart": "update",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceJobStepDelete": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceJobStep"
+        },
+        "PathPart": "delete",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceJobStepConfirm": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceJobStep"
+        },
+        "PathPart": "confirm",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceJobStepConfirmRequest": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceJobStepConfirm"
+        },
+        "PathPart": "request",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceJobStepDocument": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceJobStep"
+        },
+        "PathPart": "document",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceFeedback": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "feedback",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodClientGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceClient"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "GetClientsLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodClientIdVarGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceClientIdVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "GetClientLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodClientPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "POST",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceClient"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "CreateClientLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodClientIdVarDelete": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "DELETE",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceClientIdVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "DeleteClientLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodJobGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceJob"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "GetJobsLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodJobClientPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "POST",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceJobClient"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "GetClientJobsLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodJobIdVarGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceJobIdVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "GetJobLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodJobPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "POST",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceJob"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "CreateJobLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodJobIdVarPatch": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "PATCH",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceJobIdVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "UpdateJobLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodJobIdVarDelete": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "DELETE",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceJobIdVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "DeleteJobLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodJobStepCreatePatch": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "PATCH",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceJobStepCreate"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "CreateJobStepLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodJobStepUpdatePatch": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "PATCH",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceJobStepUpdate"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "UpdateJobStepLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodJobStepDeletePatch": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "PATCH",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceJobStepDelete"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "DeleteJobStepLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodJobStepConfirmRequestPatch": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "PATCH",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceJobStepConfirmRequest"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "RequestConfirmJobStepLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodJobStepConfirmPatch": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "PATCH",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceJobStepConfirm"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "ConfirmJobStepLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodJobStepDocumentPatch": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "PATCH",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceJobStepDocument"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "UploadJobStepDocumentLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodFeedbackGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceFeedback"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "GetFeedbacksLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "ApiGatewayMethodFeedbackPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "POST",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceFeedback"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "CreateFeedbackLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "AuthApiGatewayAuthorizer": {
+      "Type": "AWS::ApiGateway::Authorizer",
+      "Properties": {
+        "IdentitySource": "method.request.header.Authorization",
+        "Name": "auth",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "AuthorizerUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":apigateway:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":lambda:path/2015-03-31/functions/",
+              {
+                "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:auth-dev-auth"
+              },
+              "/invocations"
+            ]
+          ]
+        },
+        "Type": "TOKEN"
+      }
+    },
+    "ApiGatewayDeployment1634287563196": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "StageName": "dev"
+      },
+      "DependsOn": [
+        "ApiGatewayMethodClientGet",
+        "ApiGatewayMethodClientIdVarGet",
+        "ApiGatewayMethodClientPost",
+        "ApiGatewayMethodClientIdVarDelete",
+        "ApiGatewayMethodJobGet",
+        "ApiGatewayMethodJobClientPost",
+        "ApiGatewayMethodJobIdVarGet",
+        "ApiGatewayMethodJobPost",
+        "ApiGatewayMethodJobIdVarPatch",
+        "ApiGatewayMethodJobIdVarDelete",
+        "ApiGatewayMethodJobStepCreatePatch",
+        "ApiGatewayMethodJobStepUpdatePatch",
+        "ApiGatewayMethodJobStepDeletePatch",
+        "ApiGatewayMethodJobStepConfirmRequestPatch",
+        "ApiGatewayMethodJobStepConfirmPatch",
+        "ApiGatewayMethodJobStepDocumentPatch",
+        "ApiGatewayMethodFeedbackGet",
+        "ApiGatewayMethodFeedbackPost"
+      ]
+    },
+    "GetClientsLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "GetClientsLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "AuthLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:auth-dev-auth"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "GetClientLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "GetClientLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "CreateClientLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "CreateClientLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "DeleteClientLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "DeleteClientLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "GetJobsLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "GetJobsLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "GetClientJobsLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "GetClientJobsLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "GetJobLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "GetJobLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "CreateJobLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "CreateJobLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "UpdateJobLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "UpdateJobLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "DeleteJobLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "DeleteJobLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "CreateJobStepLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "CreateJobStepLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "UpdateJobStepLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "UpdateJobStepLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "DeleteJobStepLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "DeleteJobStepLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "RequestConfirmJobStepLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "RequestConfirmJobStepLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "ConfirmJobStepLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "ConfirmJobStepLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "UploadJobStepDocumentLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "UploadJobStepDocumentLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "GetFeedbacksLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "GetFeedbacksLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "CreateFeedbackLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "CreateFeedbackLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "ClientsTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "ClientsTable-dev",
+        "BillingMode": "PAY_PER_REQUEST",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "email",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+          }
+        ],
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "emailIndex",
+            "KeySchema": [
+              {
+                "AttributeName": "email",
+                "KeyType": "HASH"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            }
+          }
+        ]
+      }
+    },
+    "JobsTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "JobsTable-dev",
+        "BillingMode": "PAY_PER_REQUEST",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "client",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+          }
+        ],
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "clientIndex",
+            "KeySchema": [
+              {
+                "AttributeName": "client",
+                "KeyType": "HASH"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            }
+          }
+        ]
+      }
+    },
+    "FeedbacksTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "FeedbacksTable-dev",
+        "BillingMode": "PAY_PER_REQUEST",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+          }
+        ]
+      }
+    },
+    "JobsDocumentsBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "job-documents-bucket-drqw312f-dev"
+      }
+    },
+    "JobsDocumentsBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "JobsDocumentsBucket"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Sid": "PublicRead",
+              "Effect": "Allow",
+              "Principal": "*",
+              "Action": [
+                "s3:GetObject"
+              ],
+              "Resource": "arn:aws:s3:::job-documents-bucket-drqw312f-dev/*"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ServerlessDeploymentBucketName": {
+      "Value": {
+        "Ref": "ServerlessDeploymentBucket"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-ServerlessDeploymentBucketName"
+      }
+    },
+    "GetClientsLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "GetClientsLambdaVersionEmV7jvLwbGzfmFeA6oqZmIwFxvX62nwXPUUNQG1UUVA"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-GetClientsLambdaFunctionQualifiedArn"
+      }
+    },
+    "GetClientLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "GetClientLambdaVersionwS6Yc26RM85VgUqNp3HagtESmxXqTo4yoYNRkCJazmk"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-GetClientLambdaFunctionQualifiedArn"
+      }
+    },
+    "CreateClientLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "CreateClientLambdaVersion8q6wxVew3XqYco4YP9xEXmlsjJuX3SZZtAvfcEmFr0"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-CreateClientLambdaFunctionQualifiedArn"
+      }
+    },
+    "GetClientJobsLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "GetClientJobsLambdaVersionmYLvlzyX5yaomTY8jC1qnDCeVPtZ2PvE9uwX1AgJ5Bs"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-GetClientJobsLambdaFunctionQualifiedArn"
+      }
+    },
+    "DeleteClientLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "DeleteClientLambdaVersionnLuD23rp7oqErnxNgJZWqmyFTbg92m2XmuRZhACtE"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-DeleteClientLambdaFunctionQualifiedArn"
+      }
+    },
+    "GetJobsLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "GetJobsLambdaVersionLT6peXcjpX5jdn6kUJ5fU6UV6Qoqmii1HTpXsTv4ZA"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-GetJobsLambdaFunctionQualifiedArn"
+      }
+    },
+    "GetJobLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "GetJobLambdaVersionDKfQnhepcW0qOW7INlTMKDirq5XjJEMfbhHBSglfs"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-GetJobLambdaFunctionQualifiedArn"
+      }
+    },
+    "UpdateJobLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "UpdateJobLambdaVersionsVLRt6b34OAbTk4Kl5z6clRKoCFzcKKIwL09ByY54Ak"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-UpdateJobLambdaFunctionQualifiedArn"
+      }
+    },
+    "CreateJobStepLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "CreateJobStepLambdaVersionNvDr83oi07BcpEikXiwDWyP6q5gxEPTLFl5eLqryW6A"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-CreateJobStepLambdaFunctionQualifiedArn"
+      }
+    },
+    "DeleteJobLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "DeleteJobLambdaVersion2UzBzvXejrVj9WMB78lLCAGQn81XvjFK4QcmXF1RBc"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-DeleteJobLambdaFunctionQualifiedArn"
+      }
+    },
+    "CreateJobLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "CreateJobLambdaVersiondY5aVnodNUBAbOUJlntXk2WuBJvb4J6YhhPRJRdNM"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-CreateJobLambdaFunctionQualifiedArn"
+      }
+    },
+    "DeleteJobStepLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "DeleteJobStepLambdaVersionCRm5mOtl6Z9YEtqxOyPD75P8Aj1dmbc1uiCYoee3wOo"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-DeleteJobStepLambdaFunctionQualifiedArn"
+      }
+    },
+    "RequestConfirmJobStepLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "RequestConfirmJobStepLambdaVersion63V4ZXNiy587bpLDwXJ07pPDL250CBDsdJbQvUkWuQ"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-RequestConfirmJobStepLambdaFunctionQualifiedArn"
+      }
+    },
+    "UpdateJobStepLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "UpdateJobStepLambdaVersionIF1uh3OVFVcfCAgfbu7BHcKirBm4nUGgcQHHAkCD94"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-UpdateJobStepLambdaFunctionQualifiedArn"
+      }
+    },
+    "ConfirmJobStepLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "ConfirmJobStepLambdaVersionsiDPrtG7JjBpFXSBeT1H6rh4VWPyH0dWVwN4oCLAsE"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-ConfirmJobStepLambdaFunctionQualifiedArn"
+      }
+    },
+    "CreateFeedbackLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "CreateFeedbackLambdaVersionRrwcoy9Lu1GgxsRLYyg83FfdwY4prKvZNn7wEKbOtI"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-CreateFeedbackLambdaFunctionQualifiedArn"
+      }
+    },
+    "UploadJobStepDocumentLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "UploadJobStepDocumentLambdaVersiondvbV2zjnZubsbcmMrzqqqPCo2Mn5DpqaHLvldMkB608"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-UploadJobStepDocumentLambdaFunctionQualifiedArn"
+      }
+    },
+    "GetFeedbacksLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "GetFeedbacksLambdaVersionrriFfCmgy4andjeKd0FfSc27os482m3tJaugFqyGC8o"
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-GetFeedbacksLambdaFunctionQualifiedArn"
+      }
+    },
+    "ServiceEndpoint": {
+      "Description": "URL of the service endpoint",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "ApiGatewayRestApi"
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region"
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix"
+            },
+            "/dev"
+          ]
+        ]
+      },
+      "Export": {
+        "Name": "sls-freelancero-dev-ServiceEndpoint"
+      }
+    }
+  }
+}

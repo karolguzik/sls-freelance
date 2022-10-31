@@ -1,0 +1,8 @@
+FeedbacksTableIAM:
+  Effect: Allow
+  Action:
+    - dynamodb:Scan
+    - dynamodb:Query
+    - dynamodb:PutItem
+  Resource:
+    - ${self:custom.FeedbacksTable.arn}

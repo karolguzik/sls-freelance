@@ -1,0 +1,178 @@
+service:
+  name: freelancero
+
+plugins:
+  - serverless-bundle
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  memorySize: 256
+  stage: ${opt:stage, 'dev'}
+  region: eu-west-1
+  environment:
+    CLIENTS_TABLE_NAME: ${self:custom.ClientsTable.name}
+    JOBS_TABLE_NAME: ${self:custom.JobsTable.name}
+    FEEDBACKS_TABLE_NAME: ${self:custom.FeedbacksTable.name}
+    MAIL_QUEUE_URL: ${self:custom.MailQueue.url}
+    JOBS_DOCUMENTS_BUCKET_NAME: ${self:custom.JobsDocumentsBucket.name}
+  iamRoleStatements:
+    - ${file(sls/iam/ClientsTableIAM.yml):ClientsTableIAM}
+    - ${file(sls/iam/JobsTableIAM.yml):JobsTableIAM}
+    - ${file(sls/iam/FeedbacksTableIAM.yml):FeedbacksTableIAM}
+    - ${file(sls/iam/MailQueueIAM.yml):MailQueueIAM}
+    - ${file(sls/iam/JobsDocumentsBucketIAM.yml):JobsDocumentsBucketIAM}
+
+resources:
+  Resources:
+    ClientsTable: ${file(sls/resources/ClientsTable.yml):ClientsTable}
+    JobsTable: ${file(sls/resources/JobsTable.yml):JobsTable}
+    FeedbacksTable: ${file(sls/resources/FeedbacksTable.yml):FeedbacksTable}
+    JobsDocumentsBucket: ${file(sls/resources/JobsDocumentsBucket.yml):JobsDocumentsBucket}
+    JobsDocumentsBucketPolicy: ${file(sls/resources/JobsDocumentsBucket.yml):JobsDocumentsBucketPolicy}
+
+functions:
+  getClients:
+    handler: src/handlers/client/getClients.handler
+    events:
+      - http:
+          method: GET
+          path: /client
+          authorizer: ${self:custom.authorizer}
+  getClient:
+    handler: src/handlers/client/getClient.handler
+    events:
+      - http:
+          method: GET
+          path: /client/{id}
+          authorizer: ${self:custom.authorizer}
+  createClient:
+    handler: src/handlers/client/createClient.handler
+    events:
+      - http:
+          method: POST
+          path: /client
+          authorizer: ${self:custom.authorizer}
+  deleteClient:
+    handler: src/handlers/client/deleteClient.handler
+    events:
+      - http:
+          method: DELETE
+          path: /client/{id}
+          authorizer: ${self:custom.authorizer}
+  getJobs:
+    handler: src/handlers/job/getJobs.handler
+    events:
+      - http:
+          method: GET
+          path: /job
+          authorizer: ${self:custom.authorizer}
+  getClientJobs:
+    handler: src/handlers/job/getClientJobs.handler
+    events:
+      - http:
+          method: POST
+          path: /job/client
+          authorizer: ${self:custom.authorizer}
+  getJob:
+    handler: src/handlers/job/getJob.handler
+    events:
+      - http:
+          method: GET
+          path: /job/{id}
+          authorizer: ${self:custom.authorizer}
+  createJob:
+    handler: src/handlers/job/createJob.handler
+    events:
+      - http:
+          method: POST
+          path: /job
+          authorizer: ${self:custom.authorizer}
+  updateJob:
+    handler: src/handlers/job/updateJob.handler
+    events:
+      - http:
+          method: PATCH
+          path: /job/{id}
+          authorizer: ${self:custom.authorizer}
+  deleteJob:
+    handler: src/handlers/job/deleteJob.handler
+    events:
+      - http:
+          method: DELETE
+          path: /job/{id}
+          authorizer: ${self:custom.authorizer}
+  createJobStep:
+    handler: src/handlers/jobStep/createJobStep.handler
+    events:
+      - http:
+          method: PATCH
+          path: /job/step/create
+          authorizer: ${self:custom.authorizer}
+  updateJobStep:
+    handler: src/handlers/jobStep/updateJobStep.handler
+    events:
+      - http:
+          method: PATCH
+          path: /job/step/update
+          authorizer: ${self:custom.authorizer}
+  deleteJobStep:
+    handler: src/handlers/jobStep/deleteJobStep.handler
+    events:
+      - http:
+          method: PATCH
+          path: /job/step/delete
+          authorizer: ${self:custom.authorizer}
+  requestConfirmJobStep:
+    handler: src/handlers/jobStep/requestConfirmJobStep.handler
+    events:
+      - http:
+          method: PATCH
+          path: /job/step/confirm/request
+          authorizer: ${self:custom.authorizer}
+  confirmJobStep:
+    handler: src/handlers/jobStep/confirmJobStep.handler
+    events:
+      - http:
+          method: PATCH
+          path: /job/step/confirm
+          authorizer: ${self:custom.authorizer}
+  uploadJobStepDocument:
+    handler: src/handlers/jobStep/uploadJobStepDocument.handler
+    events:
+      - http:
+          method: PATCH
+          path: /job/step/document
+          authorizer: ${self:custom.authorizer}
+  getFeedbacks:
+    handler: src/handlers/feedback/getFeedbacks.handler
+    events:
+      - http:
+          method: GET
+          path: /feedback
+          authorizer: ${self:custom.authorizer}
+  createFeedback:
+    handler: src/handlers/feedback/createFeedback.handler
+    events:
+      - http:
+          method: POST
+          path: /feedback
+          authorizer: ${self:custom.authorizer}
+
+custom:
+  authorizer: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:auth-${self:provider.stage}-auth
+  ClientsTable:
+    name: !Ref ClientsTable
+    arn: !GetAtt ClientsTable.Arn
+  JobsTable:
+    name: !Ref JobsTable
+    arn: !GetAtt JobsTable.Arn
+  FeedbacksTable:
+    name: !Ref FeedbacksTable
+    arn: !GetAtt FeedbacksTable.Arn
+  MailQueue:
+    arn: ${cf:notification-service-${self:provider.stage}.MailQueueArn}
+    url: ${cf:notification-service-${self:provider.stage}.MailQueueUrl}
+  JobsDocumentsBucket:
+    name: job-documents-bucket-drqw312f-${self:provider.stage}

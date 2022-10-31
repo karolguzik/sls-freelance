@@ -1,0 +1,33 @@
+service: notification-service
+
+plugins:
+  - serverless-bundle
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+  region: eu-west-1
+  iamRoleStatements:
+    - ${file(sls/iam/SendMailIAM.yml):SendMailIAM}
+
+resources:
+  Resources:
+    MailQueue: ${file(sls/resources/MailQueue.yml):MailQueue}
+  Outputs:
+    MailQueueArn: ${file(sls/resources/MailQueue.yml):Outputs.MailQueueArn}
+    MailQueueUrl: ${file(sls/resources/MailQueue.yml):Outputs.MailQueueUrl}
+
+functions:
+  sendCreatedAccountMail:
+    handler: src/handlers/sendMail.handler
+    events:
+      - sqs:
+          arn: ${self:custom.mailQueue.arn}
+          batchSize: 1
+
+custom:
+  mailQueue:
+    name: MailQueue-${self:provider.stage}
+    arn: !GetAtt MailQueue.Arn
+    url: !Ref MailQueue

@@ -1,0 +1,20 @@
+JobsTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: JobsTable-${self:provider.stage}
+    BillingMode: PAY_PER_REQUEST
+    AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      - AttributeName: client
+        AttributeType: S
+    KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+    GlobalSecondaryIndexes:
+      - IndexName: clientIndex
+        KeySchema:
+          - AttributeName: client
+            KeyType: HASH
+        Projection:
+          ProjectionType: ALL
